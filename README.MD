@@ -1,7 +1,10 @@
-my school project.
+My school project.
 
 
-acknowlegement:
+Simple snake game based on arduino Mega2560.
 
 
-thanks for wonho-maker's Adafruit_SH1106 library: https://github.com/wonho-maker/Adafruit_SH1106
+Acknowledgment:
+
+
+Thanks for wonho-maker's Adafruit_SH1106 library: https://github.com/wonho-maker/Adafruit_SH1106
