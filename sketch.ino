@@ -5,23 +5,18 @@
 
 #define OLED_RESET -1
 
-const byte CELL_SIZE = 2;
-byte xPin = 0;
-byte yPin = 1;
-byte zPin = 2;
-byte btnPin = 13;
-byte width = 128;
-byte height = 64;
-byte row = height / CELL_SIZE;
-byte column = width / CELL_SIZE;
-Adafruit_SH1106 screen(OLED_RESET);
+const byte X_PIN = 0;
+const byte Y_PIN = 1;
+const byte Z_PIN = 2;
+const byte BUTTON_PIN = 13;
 
-enum Direction {
-  LEFT,
-  RIGHT,
-  UP,
-  DOWN
-};
+const byte CELL_SIZE = 2;
+const byte WIDTH = 128;
+const byte HEIGHT = 64;
+const byte ROW = HEIGHT / CELL_SIZE;
+const byte COLUMN = WIDTH / CELL_SIZE;
+
+Adafruit_SH1106 screen(OLED_RESET);
 
 class Node{
   private:
@@ -42,6 +37,13 @@ class Node{
 };
 
 class Snake{
+  public:
+    enum Direction {
+      LEFT,
+      RIGHT,
+      UP,
+      DOWN
+    };
   private:
     short bodySize;
     Direction heading;
@@ -79,9 +81,9 @@ class Snake{
         currentNode = currentNode->getNext();
       }
     }
-    void changeDirection(byte xPin, byte yPin){
-      short inputX = map(analogRead(xPin), 0, 1023, 0, 2);  
-      short inputY = map(analogRead(yPin), 0, 1023, 0, 2);
+    void changeDirection(byte X_PIN, byte Y_PIN){
+      short inputX = map(analogRead(X_PIN), 0, 1023, 0, 2);  
+      short inputY = map(analogRead(Y_PIN), 0, 1023, 0, 2);
       if(inputX == 2 && heading != LEFT){
         heading = RIGHT;
       }
@@ -103,7 +105,7 @@ class Snake{
     char getHeading(){return heading;}
     short getBodySize(){return bodySize;}
     Node* getHeadNode(){return headNode;}
-    Snake(byte posX, byte posY){
+    Snake(int posX, int posY){
       headNode = new Node(posX, posY);
       bodySize = 1;
       heading = RIGHT;
@@ -141,8 +143,8 @@ class Fruit{
       byte newY;
       bool overlapping;
       do {
-          newX = random(0, column)*CELL_SIZE;
-          newY = random(0, row)*CELL_SIZE;
+          newX = random(0, COLUMN)*CELL_SIZE;
+          newY = random(0, ROW)*CELL_SIZE;
           overlapping = checkOverlapping(newX, newY, snake);
       } while (overlapping);
       x = newX;
@@ -180,7 +182,7 @@ bool isGameover(Snake* snake){
     }
     currentNode = currentNode->getNext();
   }
-  if(headNode->getX() < 0 || headNode->getY() < 0 || headNode->getX() > width || headNode->getY() > height){
+  if(headNode->getX() < 0 || headNode->getY() < 0 || headNode->getX() > WIDTH || headNode->getY() > HEIGHT){
     return true;
   }
   return false;
@@ -191,7 +193,7 @@ Fruit* fruit;
 
 
 void setup()   {    
-  pinMode(btnPin, INPUT);
+  pinMode(BUTTON_PIN, INPUT);
 
   snake = new Snake(50, 16);
   snake->addNode(new Node(50, 18));
@@ -212,20 +214,20 @@ void loop() {
   if(!isGameover(snake)){
     screen.clearDisplay();
 
-    snake->changeDirection(xPin, yPin);
+    snake->changeDirection(X_PIN, Y_PIN);
     int newX = snake->getHeadNode()->getX();
     int newY = snake->getHeadNode()->getY();
     switch(snake->getHeading()){
-      case RIGHT:
+      case Snake::RIGHT:
         newX += CELL_SIZE;
         break;
-      case LEFT:
+      case Snake::LEFT:
         newX -= CELL_SIZE;
         break;
-      case UP:
+      case Snake::UP:
         newY += CELL_SIZE;
         break;
-      case DOWN:
+      case Snake::DOWN:
         newY -= CELL_SIZE;
         break;
     }
@@ -249,7 +251,7 @@ void loop() {
     screen.print("press botton to \nrestart.\n\nyour score:");
     screen.print(snake->getBodySize());
     screen.display();
-    if(digitalRead(btnPin) == 1){
+    if(digitalRead(BUTTON_PIN) == 1){
       restart(snake, fruit);
     }
   }
